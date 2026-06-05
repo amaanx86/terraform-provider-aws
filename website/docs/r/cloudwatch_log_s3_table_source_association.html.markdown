@@ -8,13 +8,13 @@ description: |-
 
 # Resource: aws_cloudwatch_log_s3_table_source_association
 
-Manages a CloudWatch Logs S3 Table Source Association. This resource associates a data source (such as a CloudWatch log type) with an S3 Table Integration, enabling CloudWatch logs to be automatically written to S3 Tables for analytics.
+Manages a CloudWatch Logs S3 Table Source Association. This resource associates a CloudWatch Logs Data Source (such as a collection of log groups) with an S3 Table Integration, enabling new log messages to be automatically written to S3 Tables for analytics.
 
 For more information, see the [CloudWatch Logs S3 Tables integration documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/s3-tables-integration.html).
 
 ## Example Usage
 
-### Associate All Sources (Wildcard)
+### Associate All CloudWatch Logs Data Sources (Wildcard)
 
 ```terraform
 resource "aws_cloudwatch_log_s3_table_source_association" "example" {
@@ -23,13 +23,26 @@ resource "aws_cloudwatch_log_s3_table_source_association" "example" {
 }
 ```
 
-### Associate a Specific Data Source
+### Associate a Specific Custom Data Source
+
+Copy new messages streaming to one particular log group into an s3 table with name `namestring__typestring`, located in an Amazon-managed table bucket named `aws-cloudwatch`.
+
+Note that the name and type strings of custom data sources can only contain lowercase letters, numbers and underscores.
+See [data source documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/data-source-discovery-management.html#how-to-get-started-data-sources) for details.
 
 ```terraform
+resource "aws_cloudwatch_log_group" "example" {
+  name = "app_logs"
+  tags = {
+    "cw:datasource:name" = "namestring"
+    "cw:datasource:type" = "typestring"
+  }
+}
+
 resource "aws_cloudwatch_log_s3_table_source_association" "example" {
   integration_arn = aws_observabilityadmin_s3_table_integration.example.arn
-  datasource_name = "my_application"
-  datasource_type = "application"
+  datasource_name = "namestring"
+  datasource_type = "typestring"
 }
 ```
 
